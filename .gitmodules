@@ -1,6 +1,6 @@
 [submodule "frontend"]
 	path = frontend
-	url = ./frontend
+	url = git@github.com:DominikKoller/scribe-frontend.git
 [submodule "backend"]
 	path = backend
-	url = ./backend
+	url = git@github.com:DominikKoller/scribe-backend.git
