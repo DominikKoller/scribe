@@ -1,0 +1,10 @@
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+
+# this folder is for local development certificates. Create them using (from the main directory):
+#openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+#  -keyout certs/privkey.pem -out certs/fullchain.pem \
+#  -subj "/CN=scribe.localhost"
+

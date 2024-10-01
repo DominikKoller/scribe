@@ -1,0 +1,75 @@
+services:
+  traefik:
+    image: traefik:v3.1.4
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.traefik.address=:8080"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.yml:/etc/traefik/dynamic/traefik.yml"
+      - "./certs:/certs"
+    restart: always
+    # traefik labels are not needed, as we can access the dashboard via http://localhost:8080
+
+  backend:
+    build:
+      context: ./backend
+    image: scribe/backend
+    container_name: scribe-backend
+    env_file:
+      - ./backend/.env.local
+    volumes:
+      - ./backend:/app # for reloading in dev mode using nodemon
+      - /app/node_modules # prevent node_modules from being overridden
+    command: npm run dev # override CMD in Dockerfile
+    labels:
+      - "traefik.enable=true"
+      # Hocuspocus Service
+      - "traefik.http.routers.backend-hocuspocus.rule=Host(`scribe.localhost`) && PathPrefix(`/hocuspocus`)"
+      - "traefik.http.routers.backend-hocuspocus.entrypoints=websecure"
+      - "traefik.http.routers.backend-hocuspocus.tls=true"
+      - "traefik.http.routers.backend-hocuspocus.middlewares=strip-hocuspocus"
+      - "traefik.http.routers.backend-hocuspocus.service=backend-hocuspocus-service"
+      - "traefik.http.services.backend-hocuspocus-service.loadbalancer.server.port=3002"
+      - "traefik.http.middlewares.strip-hocuspocus.stripprefix.prefixes=/hocuspocus"
+      - "traefik.http.routers.backend-hocuspocus.priority=10"
+      # GraphQL Service
+      - "traefik.http.routers.backend-graphql.rule=Host(`scribe.localhost`) && PathPrefix(`/graphql`)"
+      - "traefik.http.routers.backend-graphql.entrypoints=websecure"
+      - "traefik.http.routers.backend-graphql.tls=true"
+      - "traefik.http.routers.backend-graphql.middlewares=strip-graphql"
+      - "traefik.http.routers.backend-graphql.service=backend-graphql-service"
+      - "traefik.http.services.backend-graphql-service.loadbalancer.server.port=4000"
+      - "traefik.http.middlewares.strip-graphql.stripprefix.prefixes=/graphql"
+      - "traefik.http.routers.backend-graphql.priority=10"
+
+  frontend:
+    build:
+      context: ./frontend
+    image: scribe/frontend
+    container_name: scribe-frontend
+    env_file:
+      - ./frontend/.env.local
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+    labels:
+      - "traefik.enable=true"
+      # Frontend Service
+      - "traefik.http.routers.frontend.rule=Host(`scribe.localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.frontend.priority=1"
