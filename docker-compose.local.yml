@@ -17,7 +17,7 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./traefik.yml:/etc/traefik/dynamic/traefik.yml"
+      - "./traefik.local.yml:/etc/traefik/dynamic/traefik.yml"
       - "./certs:/certs"
     restart: always
     # traefik labels are not needed, as we can access the dashboard via http://localhost:8080
