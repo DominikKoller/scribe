@@ -29,7 +29,7 @@ services:
       - "traefik.enable=true"
       
       # route /hocuspocus/ to port 3002
-      - "traefik.http.routers.backend-hocuspocus.rule=Host(`scribe.dominikkoller.com`) && Path(`/hocuspocus`)"
+      - "traefik.http.routers.backend-hocuspocus.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/hocuspocus`)"
       - "traefik.http.routers.backend-hocuspocus.entrypoints=websecure"
       - "traefik.http.routers.backend-hocuspocus.tls.certresolver=myresolver"
       - "traefik.http.routers.backend-hocuspocus.middlewares=strip-hocuspocus"
@@ -38,7 +38,7 @@ services:
       - "traefik.http.routers.backend-hocuspocus.priority=10"
 
       # route /graphql/ to port 4000
-      - "traefik.http.routers.backend-graphql.rule=Host(`scribe.dominikkoller.com`) && Path(`/graphql`)"
+      - "traefik.http.routers.backend-graphql.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/graphql`)"
       - "traefik.http.routers.backend-graphql.entrypoints=websecure"
       - "traefik.http.routers.backend-graphql.tls.certresolver=myresolver"
       - "traefik.http.routers.backend-graphql.middlewares=strip-graphql"
