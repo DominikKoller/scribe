@@ -1,22 +1,64 @@
 services:
+  traefik:
+    image: traefik:v3.1.4
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoint.websecure.address=:443"
+      - "--certificateresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificateresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificateresolvers.myresolver.acme.email=mail@dominikkoller.com"
+      - "--certificateresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    restart: always
+
   backend:
     build:
       context: ./backend
     image: scribe/backend
     container_name: scribe-backend
-    ports:
-      - "3001:3001"
-      - "3002:3002"
-      - "4000:4000"
     env_file:
       - ./backend/.env
+    labels:
+      - "traefik.enable=true"
+      
+      # route /hocuspocus/ to port 3002
+      - "traefik.http.routers.backend-hocuspocus.rule=Host(`scribe.dominikkoller.com`) && Path(`/hocuspocus`)"
+      - "traefik.http.routers.backend-hocuspocus.entrypoints=websecure"
+      - "traefik.http.routers.backend-hocuspocus.tls.certresolver=myresolver"
+      - "traefik.http.routers.backend-hocuspocus.middlewares=strip-hocuspocus"
+      - "traefik.http.services.backend-hocuspocus.loadbalancer.server.port=3002"
+      - "traefik.http.middlewares.strip-hocuspocus.stripprefix.prefixes=/hocuspocus"
+      - "traefik.http.routers.backend-hocuspocus.priority=10"
+
+      # route /graphql/ to port 4000
+      - "traefik.http.routers.backend-graphql.rule=Host(`scribe.dominikkoller.com`) && Path(`/graphql`)"
+      - "traefik.http.routers.backend-graphql.entrypoints=websecure"
+      - "traefik.http.routers.backend-graphql.tls.certresolver=myresolver"
+      - "traefik.http.routers.backend-graphql.middlewares=strip-graphql"
+      - "traefik.http.services.backend-graphql.loadbalancer.server.port=4000"
+      - "traefik.http.middlewares.strip-graphql.stripprefix.prefixes=/graphql"
+      - "traefik.http.routers.backend-graphql.priority=10"
     
   frontend:
     build:
       context: ./frontend
     image: scribe/frontend
     container_name: scribe-frontend
-    ports:
-      - "3000:3000"
     env_file:
       - ./frontend/.env
+    labels:
+      - "traefik.enable=true"
+      
+      # route / to port 3000
+      - "traefik.http.routers.frontend.rule=Host(`scribe.dominikkoller.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.frontend.priority=10"
