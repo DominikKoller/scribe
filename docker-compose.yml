@@ -31,6 +31,7 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.middlewares=auth-traefik"
       - "traefik.http.middlewares.auth-traefik.basicauth.usersfile=/traefik-dashboard-auth/.htpasswd"
+      - "traefik.http.routers.traefik.priority=10"
     restart: always
 
   backend:
