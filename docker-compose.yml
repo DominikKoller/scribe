@@ -25,12 +25,12 @@ services:
     labels:
       # traefik dashboard
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.dominikkoller.com`)"
+      - "traefik.http.routers.traefik.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/traefik`)"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.middlewares=auth-traefik"
-      - "traefik.http.middlewares.auth.basicauth.usersfile=/traefik-dashboard-auth/.htpasswd"
+      - "traefik.http.middlewares.auth-traefik.basicauth.usersfile=/traefik-dashboard-auth/.htpasswd"
     restart: always
 
   backend:
