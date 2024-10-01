@@ -10,8 +10,6 @@ services:
       - "4000:4000"
     env_file:
       - ./backend/.env
-    networks:
-      - scribe-network
     
   frontend:
     build:
@@ -20,13 +18,5 @@ services:
     container_name: scribe-frontend
     ports:
       - "3000:3000"
-    depends_on:
-      - backend
     env_file:
       - ./frontend/.env
-    networks:
-      - scribe-network
-
-networks:
-  scribe-network:
-    driver: bridge
