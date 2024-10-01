@@ -48,8 +48,9 @@ MONGODB_URI=mongodbURI
 JWT_SECRET=jwt_secret (!!! REPLACE THIS WITH A JWT SECRET)
 OPENAI_API_KEY=openaikey
 
-The frontend .env must contain (these for local development, or full URLs):
-PUBLIC_API_BASE_URL=http://localhost:3001/api
-PUBLIC_HOCUSPOCUS_URL=http://localhost:3002
+The frontend .env must contain (these for local development, use the actual domain in production):
+PUBLIC_API_BASE_URL=https://scribe.localhost/api/
+PUBLIC_APOLLO_URL=https://scribe.localhost/graphql
+PUBLIC_HOCUSPOCUS_URL=https://scribe.localhost/hocuspocus
 
 These docker containers are currently hosted on a AWS EC2.

@@ -28,7 +28,7 @@ services:
     image: scribe/backend
     container_name: scribe-backend
     env_file:
-      - ./backend/.env.local
+      - ./backend/.env
     volumes:
       - ./backend:/app # for reloading in dev mode using nodemon
       - /app/node_modules # prevent node_modules from being overridden
@@ -60,7 +60,7 @@ services:
     image: scribe/frontend
     container_name: scribe-frontend
     env_file:
-      - ./frontend/.env.local
+      - ./frontend/.env
     volumes:
       - ./frontend:/app
       - /app/node_modules
