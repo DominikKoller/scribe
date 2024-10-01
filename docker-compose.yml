@@ -34,7 +34,7 @@ services:
       - "traefik.http.routers.backend-hocuspocus.tls.certresolver=myresolver"
       - "traefik.http.routers.backend-hocuspocus.middlewares=strip-hocuspocus"
       - "traefik.http.routers.backend-hocuspocus.service=backend-hocuspocus-service"
-      - "traefik.http.services.backend-hocuspocus.loadbalancer.server.port=3002"
+      - "traefik.http.services.backend-hocuspocus-service.loadbalancer.server.port=3002"
       - "traefik.http.middlewares.strip-hocuspocus.stripprefix.prefixes=/hocuspocus"
       - "traefik.http.routers.backend-hocuspocus.priority=10"
 
@@ -44,7 +44,7 @@ services:
       - "traefik.http.routers.backend-graphql.tls.certresolver=myresolver"
       - "traefik.http.routers.backend-graphql.middlewares=strip-graphql"
       - "traefik.http.routers.backend-graphql.service=backend-graphql-service"
-      - "traefik.http.services.backend-graphql.loadbalancer.server.port=4000"
+      - "traefik.http.services.backend-graphql-service.loadbalancer.server.port=4000"
       - "traefik.http.middlewares.strip-graphql.stripprefix.prefixes=/graphql"
       - "traefik.http.routers.backend-graphql.priority=10"
     
