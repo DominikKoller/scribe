@@ -33,6 +33,7 @@ Also, add the following to your /etc/hosts/ file:
 Then, the services will then be available under
 https://scribe.localhost/
 make sure to type https, as before you have accepted your local certificate your browser might not allow a auto redirect to https.
+WHEN YOU GET A 404, CHECK WHETHER YOUR BROWSER IS GOING TO https!
 
 The browser of the SvelteKit frontend communicates directly with the backend.
 This is to decouple the SvelteKit application from the backend - it could be hosted anywhere independently, or replced with any other client that has no hosting server.
