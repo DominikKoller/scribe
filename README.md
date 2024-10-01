@@ -10,9 +10,8 @@ echo "admin:$(openssl passwd -apr1 strongpassword)" > traefik-dashboard-auth/.ht
 Replacing strongpassword with a strong password. This will store login information used by Traefik in 
 traefik-dashboard-auth/.htpasswd
 
-To deploy in production, run
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-
+To deploy, run:
+docker-compose up --build -d
 
 The Traefik dashboard will be reachable via 
 https://scribe.dominikkoller.com:8080
