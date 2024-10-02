@@ -28,10 +28,12 @@ services:
       - "traefik.http.middlewares.ratelimit-lowtraffic-second.ratelimit.burst=20"
       - "traefik.http.middlewares.ratelimit-lowtraffic-minute.ratelimit.average=100" # per minute per IP
       - "traefik.http.middlewares.ratelimit-lowtraffic-minute.ratelimit.burst=150"
-      - "traefik.http.middlewares.ratelimit-hightraffic-second.ratelimit.average=20" # high traffic is for the hocuspocus server, which live updates documents
+      - "traefik.http.middlewares.ratelimit-lowtraffic-minute.ratelimit.period=60s"
+      - "traefik.http.middlewares.ratelimit-hightraffic-second.ratelimit.average=20" # high traffic is for the hocuspocus server, which live updates documents (TODO low prio investigate how much of this actually counts towards the rate limit)
       - "traefik.http.middlewares.ratelimit-hightraffic-second.ratelimit.burst=40"
       - "traefik.http.middlewares.ratelimit-hightraffic-minute.ratelimit.average=200"
       - "traefik.http.middlewares.ratelimit-hightraffic-minute.ratelimit.burst=300"
+      - "traefik.http.middlewares.ratelimit-hightraffic-minute.ratelimit.period=60s"
 
       # traefik dashboard
       - "traefik.enable=true"
