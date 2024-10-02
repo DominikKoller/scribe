@@ -24,15 +24,22 @@ services:
       - "./traefik-dashboard-auth:/traefik-dashboard-auth"
     labels:
       # Defining global rate limit middleware
-      - "traefik.http.middlewares.rate-limit.ratelimit.average=10" # per second per IP
-      - "traefik.http.middlewares.rate-limit.ratelimit.burst=20"
+      - "traefik.http.middlewares.ratelimit-lowtraffic-second.ratelimit.average=10" # per second per IP
+      - "traefik.http.middlewares.ratelimit-lowtraffic-second.ratelimit.burst=20"
+      - "traefik.http.middlewares.ratelimit-lowtraffic-minute.ratelimit.average=100" # per minute per IP
+      - "traefik.http.middlewares.ratelimit-lowtraffic-minute.ratelimit.burst=150"
+      - "traefik.http.middlewares.ratelimit-hightraffic-second.ratelimit.average=20" # high traffic is for the hocuspocus server, which live updates documents
+      - "traefik.http.middlewares.ratelimit-hightraffic-second.ratelimit.burst=40"
+      - "traefik.http.middlewares.ratelimit-hightraffic-minute.ratelimit.average=200"
+      - "traefik.http.middlewares.ratelimit-hightraffic-minute.ratelimit.burst=300"
+
       # traefik dashboard
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`scribe.dominikkoller.com`)"
       - "traefik.http.routers.traefik.entrypoints=traefik"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
       - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.middlewares=auth-traefik, rate-limit"
+      - "traefik.http.routers.traefik.middlewares=auth-traefik, ratelimit-lowtraffic-second, ratelimit-lowtraffic-minute"
       - "traefik.http.middlewares.auth-traefik.basicauth.usersfile=/traefik-dashboard-auth/.htpasswd"
       - "traefik.http.routers.traefik.priority=10"
     restart: always
@@ -51,7 +58,7 @@ services:
       - "traefik.http.routers.backend-hocuspocus.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/hocuspocus`)"
       - "traefik.http.routers.backend-hocuspocus.entrypoints=websecure"
       - "traefik.http.routers.backend-hocuspocus.tls.certresolver=myresolver"
-      - "traefik.http.routers.backend-hocuspocus.middlewares=strip-hocuspocus, rate-limit"
+      - "traefik.http.routers.backend-hocuspocus.middlewares=strip-hocuspocus, ratelimit-hightraffic-second, ratelimit-hightraffic-minute"
       - "traefik.http.routers.backend-hocuspocus.service=backend-hocuspocus-service"
       - "traefik.http.services.backend-hocuspocus-service.loadbalancer.server.port=3002"
       - "traefik.http.middlewares.strip-hocuspocus.stripprefix.prefixes=/hocuspocus"
@@ -61,7 +68,7 @@ services:
       - "traefik.http.routers.backend-graphql.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/graphql`)"
       - "traefik.http.routers.backend-graphql.entrypoints=websecure"
       - "traefik.http.routers.backend-graphql.tls.certresolver=myresolver"
-      - "traefik.http.routers.backend-graphql.middlewares=strip-graphql, rate-limit"
+      - "traefik.http.routers.backend-graphql.middlewares=strip-graphql, ratelimit-lowtraffic-second, ratelimit-lowtraffic-minute"
       - "traefik.http.routers.backend-graphql.service=backend-graphql-service"
       - "traefik.http.services.backend-graphql-service.loadbalancer.server.port=4000"
       - "traefik.http.middlewares.strip-graphql.stripprefix.prefixes=/graphql"
@@ -83,4 +90,4 @@ services:
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
       - "traefik.http.routers.frontend.priority=1"
-      - "traefik.http.routers.frontend.middlewares=rate-limit"
+      - "traefik.http.routers.frontend.middlewares=ratelimit-lowtraffic-second, ratelimit-lowtraffic-minute"
