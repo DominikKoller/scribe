@@ -53,6 +53,17 @@ services:
     container_name: scribe-backend
     env_file:
       - ./backend/.env
+    environment:
+    # For now, we include this with username and password even in the production environment
+    # This is fine since the db is only accessible internally
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_DB=scribe
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=password
+
+      - HOCUSPOCUS_PORT=3002
+      - APOLLO_PORT=4000
     labels:
       - "traefik.enable=true"
       
@@ -93,3 +104,22 @@ services:
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
       - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.routers.frontend.middlewares=ratelimit-lowtraffic-second, ratelimit-lowtraffic-minute"
+
+  mongodb:
+    image: mongo:8
+    container_name: scribe-mongodb
+    restart: always
+    environment:
+    # again, user and password are included here
+    # make sure mongodb is only accessible internally
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongodb-data:/data/db
+    command: 
+      - '--logpath'
+      - '/var/log/mongodb/mongod.log' # important so logs dont get printed to the console
+
+volumes:
+  mongodb-data:
+    driver: local

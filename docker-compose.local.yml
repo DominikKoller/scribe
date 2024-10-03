@@ -1,3 +1,4 @@
+# /docker-compose.local.yml
 services:
   traefik:
     image: traefik:v3.1.4
@@ -29,6 +30,15 @@ services:
     container_name: scribe-backend
     env_file:
       - ./backend/.env
+    environment:
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_DB=scribe
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=password
+
+      - HOCUSPOCUS_PORT=3002
+      - APOLLO_PORT=4000
     volumes:
       - ./backend:/app # for reloading in dev mode using nodemon
       - /app/node_modules # prevent node_modules from being overridden
@@ -73,3 +83,20 @@ services:
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
       - "traefik.http.routers.frontend.priority=1"
+
+  mongodb:
+    image: mongo:8
+    container_name: scribe-mongodb
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongodb-data:/data/db
+    command: 
+      - '--logpath'
+      - '/var/log/mongodb/mongod.log' # important so logs dont get printed to the console
+
+volumes:
+  mongodb-data:
+    driver: local
