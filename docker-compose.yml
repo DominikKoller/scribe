@@ -36,9 +36,20 @@ services:
       - "traefik.http.middlewares.ratelimit-hightraffic-minute.ratelimit.period=60s"
 
       # traefik dashboard
+      # OLD
+      # - "traefik.enable=true"
+      # - "traefik.http.routers.traefik.rule=Host(`scribe.dominikkoller.com`)"
+      # - "traefik.http.routers.traefik.entrypoints=traefik"
+      # - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      # - "traefik.http.routers.traefik.service=api@internal"
+      # - "traefik.http.routers.traefik.middlewares=auth-traefik, ratelimit-lowtraffic-second, ratelimit-lowtraffic-minute"
+      # - "traefik.http.middlewares.auth-traefik.basicauth.usersfile=/traefik-dashboard-auth/.htpasswd"
+      # - "traefik.http.routers.traefik.priority=10"
+
+      # NEW route api.scribe.dominikkoller.com/traefik to traefik dashboard
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`scribe.dominikkoller.com`)"
-      - "traefik.http.routers.traefik.entrypoints=traefik"
+      - "traefik.http.routers.traefik.rule=Host(`api.scribe.dominikkoller.com`) && PathPrefix(`/traefik`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.middlewares=auth-traefik, ratelimit-lowtraffic-second, ratelimit-lowtraffic-minute"
@@ -67,8 +78,18 @@ services:
     labels:
       - "traefik.enable=true"
       
-      # route /hocuspocus/ to port 3002
-      - "traefik.http.routers.backend-hocuspocus.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/hocuspocus`)"
+      # OLD: route /hocuspocus/ to port 3002
+      - "traefik.http.routers.backend-hocuspocus-old.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/hocuspocus`)"
+      - "traefik.http.routers.backend-hocuspocus-old.entrypoints=websecure"
+      - "traefik.http.routers.backend-hocuspocus-old.tls.certresolver=myresolver"
+      - "traefik.http.routers.backend-hocuspocus-old.middlewares=strip-hocuspocus, ratelimit-hightraffic-second, ratelimit-hightraffic-minute"
+      - "traefik.http.routers.backend-hocuspocus-old.service=backend-hocuspocus-old-service"
+      - "traefik.http.services.backend-hocuspocus-old-service.loadbalancer.server.port=3002"
+      - "traefik.http.middlewares.strip-hocuspocus.stripprefix.prefixes=/hocuspocus"
+      - "traefik.http.routers.backend-hocuspocus-old.priority=10"
+
+      # NEW: route api.scribe.dominikkoller.com/hocuspocus to port 3002
+      - "traefik.http.routers.backend-hocuspocus.rule=Host(`api.scribe.dominikkoller.com`) && PathPrefix(`/hocuspocus`)"
       - "traefik.http.routers.backend-hocuspocus.entrypoints=websecure"
       - "traefik.http.routers.backend-hocuspocus.tls.certresolver=myresolver"
       - "traefik.http.routers.backend-hocuspocus.middlewares=strip-hocuspocus, ratelimit-hightraffic-second, ratelimit-hightraffic-minute"
@@ -77,8 +98,18 @@ services:
       - "traefik.http.middlewares.strip-hocuspocus.stripprefix.prefixes=/hocuspocus"
       - "traefik.http.routers.backend-hocuspocus.priority=10"
 
-      # route /graphql/ to port 4000
-      - "traefik.http.routers.backend-graphql.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/graphql`)"
+      # OLD: route /graphql/ to port 4000
+      - "traefik.http.routers.backend-graphql-old.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/graphql`)"
+      - "traefik.http.routers.backend-graphql-old.entrypoints=websecure"
+      - "traefik.http.routers.backend-graphql-old.tls.certresolver=myresolver"
+      - "traefik.http.routers.backend-graphql-old.middlewares=strip-graphql, ratelimit-lowtraffic-second, ratelimit-lowtraffic-minute"
+      - "traefik.http.routers.backend-graphql-old.service=backend-graphql-old-service"
+      - "traefik.http.services.backend-graphql-old-service.loadbalancer.server.port=4000"
+      - "traefik.http.middlewares.strip-graphql.stripprefix.prefixes=/graphql"
+      - "traefik.http.routers.backend-graphql-old.priority=10"
+
+      # NEW: route api.scribe.dominikkoller.com/graphql to port 4000
+      - "traefik.http.routers.backend-graphql.rule=Host(`api.scribe.dominikkoller.com`) && PathPrefix(`/graphql`)"
       - "traefik.http.routers.backend-graphql.entrypoints=websecure"
       - "traefik.http.routers.backend-graphql.tls.certresolver=myresolver"
       - "traefik.http.routers.backend-graphql.middlewares=strip-graphql, ratelimit-lowtraffic-second, ratelimit-lowtraffic-minute"
