@@ -19,6 +19,10 @@ ME_CONFIG_MONGODB_URL=mongodb://root:password@mongodb:27017
 
 with secure passwords and usernames.
 
+The same password and username must be set in backend/.env:
+MONGO_USERNAME=root
+MONGO_PASSWORD=password
+
 To deploy, run:
 docker-compose up --build -d
 

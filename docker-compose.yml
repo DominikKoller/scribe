@@ -126,7 +126,7 @@ services:
       - mongodb
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.mongo-express.rule=Host(`scribe.localhost`) && PathPrefix(`/mongodb`)"
+      - "traefik.http.routers.mongo-express.rule=Host(`scribe.dominikkoller.com`) && PathPrefix(`/mongodb`)"
       - "traefik.http.routers.mongo-express.entrypoints=websecure"
       - "traefik.http.routers.mongo-express.tls.certresolver=myresolver"
       - "traefik.http.routers.mongo-express.service=mongo-express-service"
