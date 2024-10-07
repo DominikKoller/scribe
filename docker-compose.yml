@@ -120,6 +120,7 @@ services:
     environment:
       ME_CONFIG_SITE_BASEURL: /mongodb
       ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+      ME_CONFIG_BASICAUTH: true
     env_file:
       - .env.mongo
     depends_on:

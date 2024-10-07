@@ -16,10 +16,13 @@ MONGO_INITDB_ROOT_PASSWORD=password
 ME_CONFIG_MONGODB_ADMINUSERNAME=root
 ME_CONFIG_MONGODB_ADMINPASSWORD=password
 ME_CONFIG_MONGODB_URL=mongodb://root:password@mongodb:27017
+ME_CONFIG_BASICAUTH_USERNAME=admin
+ME_CONFIG_BASICAUTH_PASSWORD=password
 
 with secure passwords and usernames.
 
 The same password and username must be set in backend/.env:
+(not the basicauth, those are for access to mongo express in the first place)
 MONGO_USERNAME=root
 MONGO_PASSWORD=password
 
