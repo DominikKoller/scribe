@@ -97,6 +97,28 @@ services:
       - '--logpath'
       - '/var/log/mongodb/mongod.log' # important so logs dont get printed to the console
 
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: scribe-mongo-express
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://root:password@mongodb:27017
+      ME_CONFIG_SITE_BASEURL: /mongodb
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+    depends_on:
+      - mongodb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mongo-express.rule=Host(`scribe.localhost`) && PathPrefix(`/mongodb`)"
+      - "traefik.http.routers.mongo-express.entrypoints=websecure"
+      - "traefik.http.routers.mongo-express.tls=true"
+      - "traefik.http.routers.mongo-express.service=mongo-express-service"
+      - "traefik.http.services.mongo-express-service.loadbalancer.server.port=8081"
+      - "traefik.http.routers.mongo-express.priority=15"
+
 volumes:
   mongodb-data:
     driver: local

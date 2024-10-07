@@ -10,6 +10,15 @@ echo "admin:$(openssl passwd -apr1 strongpassword)" > traefik-dashboard-auth/.ht
 Replacing strongpassword with a strong password. This will store login information used by Traefik in 
 traefik-dashboard-auth/.htpasswd
 
+for mongodb express, you must set these in .env.mongo:
+MONGO_INITDB_ROOT_USERNAME=root
+MONGO_INITDB_ROOT_PASSWORD=password
+ME_CONFIG_MONGODB_ADMINUSERNAME=root
+ME_CONFIG_MONGODB_ADMINPASSWORD=password
+ME_CONFIG_MONGODB_URL=mongodb://root:password@mongodb:27017
+
+with secure passwords and usernames.
+
 To deploy, run:
 docker-compose up --build -d
 
