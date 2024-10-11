@@ -2,10 +2,10 @@
 
 This repository contains the source code for [https://scribe.dominikkoller.com](https://scribe.dominikkoller.com). It is composed of two submodules:
 
-- A **Node.js backend**
+- A **Backend** including a Traefik Load Balancer, MongoDB Database and a Node.js Apollo + Hocuspocus server
 - A **SvelteKit frontend**
 
-The Node.js backend connects to an external MongoDB database. This repository includes all the necessary information to run and deploy both the backend and the frontend. It also includes a Traefik server to handle SSL termination and to obtain and renew SSL certificates from Let's Encrypt.
+This repository includes all the necessary information to run and deploy both the backend and the frontend. Traefik handles SSL termination and obtains and renews SSL certificates from Let's Encrypt.
 
 Certificates are stored automatically in the folder `/letsencrypt`.
 
@@ -13,12 +13,13 @@ Certificates are stored automatically in the folder `/letsencrypt`.
 
 ### Backend
 
-- **Language:** Node.js
-- **Database:** MongoDB (external)
+- **Language:** Typescript
+- **Framework:** Node.js
+- **Database:** MongoDB
 - **Environment Variables:** Located in `backend/.env`
 
 ### Frontend
-
+- **Language:** Typescript
 - **Framework:** SvelteKit
 - **Environment Variables:** Located in `frontend/.env`
 
@@ -75,12 +76,11 @@ Additionally, the backend `.env` must contain:
 ```env
 EXPRESS_PORT=3001
 HOCUSPOCUS_PORT=3002
-MONGODB_URI=mongodbURI
 JWT_SECRET=jwt_secret  # Replace with your JWT secret
 OPENAI_API_KEY=openaikey
 ```
 
-Replace `mongodbURI`, `jwt_secret`, and `openaikey` with your actual MongoDB URI, JWT secret, and OpenAI API key, respectively.
+Replace `jwt_secret`, and `openaikey` with your actual JWT secret, and OpenAI API key, respectively.
 
 ### Frontend Environment Variables
 
@@ -137,7 +137,7 @@ Add the following entry to your `/etc/hosts` file:
 
 The services will then be available under `https://scribe.localhost/`. Make sure to type `https`, as before you have accepted your local certificate, your browser might not allow an automatic redirect to `https`.
 
-**When you get a 404 error, check whether your browser is going to `https`!**
+**When you get a 404 error, check that your browser is going to `https`!**
 
 ## Notes
 
