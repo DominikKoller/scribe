@@ -1,16 +1,55 @@
-This is a repo composed of two submodules, a NodeJS backend and a SvelteKit frontend.
-The NodeJS backend currently connects to an external MongoDB database.
-This repo contains the information to run and deploy both. This includes a Traefik server to handle SSL termination and obtaining and renewing SSL certificates from letsencrypt.
+# Scribe
 
-Certificates are stored automatically in the folder /letsencrypt
+This repository contains the source code for [https://scribe.dominikkoller.com](https://scribe.dominikkoller.com). It is composed of two submodules:
 
-Before running, you should set up a hashed password file for the Traefik Dashboard. To do so, run:
+- A **Node.js backend**
+- A **SvelteKit frontend**
+
+The Node.js backend connects to an external MongoDB database. This repository includes all the necessary information to run and deploy both the backend and the frontend. It also includes a Traefik server to handle SSL termination and to obtain and renew SSL certificates from Let's Encrypt.
+
+Certificates are stored automatically in the folder `/letsencrypt`.
+
+## Components
+
+### Backend
+
+- **Language:** Node.js
+- **Database:** MongoDB (external)
+- **Environment Variables:** Located in `backend/.env`
+
+### Frontend
+
+- **Framework:** SvelteKit
+- **Environment Variables:** Located in `frontend/.env`
+
+## Prerequisites
+
+- Docker and Docker Compose installed on your system.
+- For local deployment:
+    - OpenSSL to generate local certificates.
+    - Ability to modify your `/etc/hosts` file.
+
+## Setup Instructions
+
+### Certificates Storage
+
+Certificates are automatically stored in the `/letsencrypt` folder by Traefik.
+
+### Setting up Traefik Dashboard Authentication
+
+Before running the application, you should set up a hashed password file for the Traefik Dashboard:
+
+```bash
 echo "admin:$(openssl passwd -apr1 strongpassword)" > traefik-dashboard-auth/.htpasswd
+```
 
-Replacing strongpassword with a strong password. This will store login information used by Traefik in 
-traefik-dashboard-auth/.htpasswd
+Replace `strongpassword` with a strong password of your choice. This command stores the login information used by Traefik in `traefik-dashboard-auth/.htpasswd`.
 
-for mongodb express, you must set these in .env.mongo:
+### MongoDB Express Configuration
+
+For MongoDB Express, you must set the following in `.env.mongo`:
+
+```env
 MONGO_INITDB_ROOT_USERNAME=root
 MONGO_INITDB_ROOT_PASSWORD=password
 ME_CONFIG_MONGODB_ADMINUSERNAME=root
@@ -18,56 +57,94 @@ ME_CONFIG_MONGODB_ADMINPASSWORD=password
 ME_CONFIG_MONGODB_URL=mongodb://root:password@mongodb:27017
 ME_CONFIG_BASICAUTH_USERNAME=admin
 ME_CONFIG_BASICAUTH_PASSWORD=password
+```
 
-with secure passwords and usernames.
+Make sure to replace `root`, `password`, and `admin` with secure usernames and passwords.
 
-The same password and username must be set in backend/.env:
-(not the basicauth, those are for access to mongo express in the first place)
+### Backend Environment Variables
+
+The same MongoDB username and password must be set in `backend/.env` (note: the `BASICAUTH` variables are for access to MongoDB Express and are not needed here):
+
+```env
 MONGO_USERNAME=root
 MONGO_PASSWORD=password
+```
 
-To deploy, run:
+Additionally, the backend `.env` must contain:
+
+```env
+EXPRESS_PORT=3001
+HOCUSPOCUS_PORT=3002
+MONGODB_URI=mongodbURI
+JWT_SECRET=jwt_secret  # Replace with your JWT secret
+OPENAI_API_KEY=openaikey
+```
+
+Replace `mongodbURI`, `jwt_secret`, and `openaikey` with your actual MongoDB URI, JWT secret, and OpenAI API key, respectively.
+
+### Frontend Environment Variables
+
+The frontend `.env` must contain the following variables. For local development, use the provided values. In production, use the actual domain:
+
+```env
+PUBLIC_API_BASE_URL=https://scribe.localhost/api/
+PUBLIC_APOLLO_URL=https://scribe.localhost/graphql
+PUBLIC_HOCUSPOCUS_URL=https://scribe.localhost/hocuspocus
+```
+
+## Deployment
+
+### Production Deployment
+
+To deploy the application in production, run:
+
+```bash
 docker-compose up --build -d
+```
 
-The Traefik dashboard will be reachable via 
-https://scribe.dominikkoller.com:8080
-(given that is the domain you deploy to - otherwise you'll need to change the docker-compose.yml file though)
-Make sure your 8080 port is opened, eg in your EC2 instance configuration.
+If you choose to enable it, the Traefik dashboard will be reachable via `https://scribe.dominikkoller.com:8080` (assuming that is the domain you deploy to). If you are deploying to a different domain, you will need to change the `docker-compose.yml` file accordingly (which is also where you can enable or disable the dashboard)
 
-To deploy locally, run
+**Note:** Make sure your port `8080` is opened, e.g., in your AWS EC2 instance configuration.
+
+### Local Deployment
+
+To deploy locally, run:
+
+```bash
 docker-compose -f docker-compose.local.yml up --build
+```
 
-For your local HTTPS connection, you need to creat local certificates:
+#### Generating Local Certificates
+
+For your local HTTPS connection, you need to create local certificates:
+
+```bash
 mkdir certs
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout certs/privkey.pem -out certs/fullchain.pem \
   -subj "/CN=scribe.localhost"
+```
 
-Also, add the following to your /etc/hosts/ file:
+#### Updating Hosts File
+
+Add the following entry to your `/etc/hosts` file:
+
+```
 127.0.0.1 scribe.localhost
+```
 
-Then, the services will then be available under
-https://scribe.localhost/
-make sure to type https, as before you have accepted your local certificate your browser might not allow a auto redirect to https.
-WHEN YOU GET A 404, CHECK WHETHER YOUR BROWSER IS GOING TO https!
+#### Note on HTTPS
 
-The browser of the SvelteKit frontend communicates directly with the backend.
-This is to decouple the SvelteKit application from the backend - it could be hosted anywhere independently, or replced with any other client that has no hosting server.
+The services will then be available under `https://scribe.localhost/`. Make sure to type `https`, as before you have accepted your local certificate, your browser might not allow an automatic redirect to `https`.
 
-Both projects contain their own .env file
-Adapt them to your needs.
+**When you get a 404 error, check whether your browser is going to `https`!**
 
-The backend .env must contain:
-EXPRESS_PORT=3001
-HOCUSPOCUS_PORT=3002
+## Notes
 
-MONGODB_URI=mongodbURI
-JWT_SECRET=jwt_secret (!!! REPLACE THIS WITH A JWT SECRET)
-OPENAI_API_KEY=openaikey
+### SvelteKit Frontend Communication
 
-The frontend .env must contain (these for local development, use the actual domain in production):
-PUBLIC_API_BASE_URL=https://scribe.localhost/api/
-PUBLIC_APOLLO_URL=https://scribe.localhost/graphql
-PUBLIC_HOCUSPOCUS_URL=https://scribe.localhost/hocuspocus
+The SvelteKit frontend's browser communicates directly with the backend. This decouples the SvelteKit application from the backend—it can be hosted independently or replaced with any other client that has no hosting server.
 
-These docker containers are currently hosted on a AWS EC2.
+### Docker Containers Hosting
+
+These Docker containers are currently hosted on an AWS EC2 instance.
